@@ -1,0 +1,63 @@
+OPERATORS
+-> ++ -- ** ! ~ \ + - =~ !~ * / % x + - . >> << > < >= <= lt gt le ge == != <=> eq ne cmp ~~ & | ^ && || // .. ... ?: = {thing}= goto last next redo dump , not and or xor
+
+NAMED UNARY OPERATORS
+
+VARIABLES
+$a $b $_ @a @b @_ %a %b %_ # AT THE VERY LEAST
+
+LIST OPERATORS
+
+OTHER TERMS
+() '' "" 123.456 qw{},etc. func()
+
+ETC
+-x
+
+things I still need to implement
+- foo{} literals
+
+OPERATORS/FUNCTIONS (map to "do this to the stack, replace with result")
++-*/%><!. duh
+^ **
+= ==
+| ||/or
+& &&/and
+~ ~~
+: =
+b a& n~ o| x^
+d 0-9toggleStackDiv cclear   *** for nested function calls; special
+i xindex
+l g<> (mnemonic: lt gt)
+q toggleStackDiv             *** (simple 2-nested function calls)
+s fsprintf
+  xsplice (mnemonic: crossing out parts and replacing)
+*** as many characters as necessary to unambiguously identify (always 1/2):
+    abs atan2 chomp cmp cos die eq eval exp grep gt hex int join keys lc length
+    lt map oct open pop print push rand reverse rindex say scalar shift sin
+    sleep sort split sqrt substr time uc unshift values x
+*** unused: fnwyz
+
+LITERALS/VARIABLES (map to "stick this on the stack")
+? undef
+' {}   (for ex. map,grep,sort)
+" ""
+0 0-9
+M m/.../
+S s/.../.../
+Y y/.../.../
+A $a  B $b  C $c  D $d  E $e  F $f  G $g  _ $_
+H @a  I @b  J @c  K @d  L @e  N @f  O @g  P @_
+Q %a  R %b  T %c  U %d  V %e  W %f  X %g  Z %_
+$ push whatever var ex. $$
+@ see ^
+# % is taken so this is %
+
+SUPERLITERALS (get stuck verbatim into the code, surrounded by whitespace)
+, ,
+; ;   *** ALSO CLEARS THE STACK
+( ()
+[ []
+{ {}
+\ eelse Eelsif ffor iif llast nnext rreturn s*sub(1lettername) uuntil Uunless
+  wwhile
