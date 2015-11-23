@@ -27,6 +27,7 @@ OPERATORS/FUNCTIONS (map to "do this to the stack, replace with result")
 : =
 b a& n~ o| x^
 d 0-9toggleStackDiv cclear   *** for nested function calls; special
+  drange (mnemonic: dot dot)
 i xindex
 l g<> (mnemonic: lt gt)
 q toggleStackDiv             *** (simple 2-nested function calls)

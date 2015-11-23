@@ -15,7 +15,7 @@ while ($code =~ m/
                  | M(.)   (?:\\.|(?!\3).)*\3                    # m regex
                  | [SY](.)(?:\\.|(?!\4).)*\4(?:(?!\4).|\\.)*\4  # s, y regex
                  | [\$@#](?:[A-Za-z]+|.)                        # variable
-                 | \\s.|\\.                                     # backslash seq
+                 | \\[eln]|\\.(?:[A-Z]|[^\\]*)                  # backslash seq
                  )/gx) {
     push @tokens, $1;
 }
@@ -37,6 +37,8 @@ my $comptoken = sub {
 
     # let's handle easy constants first
     my $constmap = {
+        ' '  => '',
+
         '+'  => 'ga; push @s, shift @args; $s[-1] +=  $_ foreach @args;',
         '-'  => 'ga; push @s, shift @args; $s[-1] -=  $_ foreach @args;',
         '*'  => 'ga; push @s, shift @args; $s[-1] *=  $_ foreach @args;',
@@ -47,8 +49,9 @@ my $comptoken = sub {
         '!'  => 'ga; push @s, 1;           $s[-1] &= !$_ foreach @args;',
         '&'  => 'ga; push @s, 1;           $s[-1] &=  $_ foreach @args;',
         '|'  => 'ga; push @s, 0;           $s[-1] |=  $_ foreach @args;',
-        ' '  => '',
+
         'ab' => 'ga; push @s, map abs,      @args;',
+        'ch' => 'ga; push @s, map chomp,    @args;',
         'co' => 'ga; push @s, map cos,      @args;',
         'ex' => 'ga; push @s, map exp,      @args;',
         'lc' => 'ga; push @s, map lc,       @args;',
@@ -59,17 +62,43 @@ my $comptoken = sub {
         'sl' => 'ga;          map sleep $_, @args;',
         'sq' => 'ga; push @s, map sqrt,     @args;',
         'uc' => 'ga; push @s, map uc,       @args;',
+
+        're' => 'ga; push @s, reverse @args;',
+        'so' => 'ga; push @s, sort    @args;',
+
+        'at' => 'ga; push @s, atan2 $args[0], $args[1];',
         'x'  => 'ga; push @s, $args[0] x $args[1];',
-        '('  => '(', ')' => ')', '[' => '[', ']' => ']', '{' => '{', '}' => '}',
-        #'\\e' => 'else', '\\E' => 'elsif', '\\f' => 'for', '\\i' => 'if',
-        #'\\l' => 'last', '\\n' => 'next', '\\r' => 'return', '\\u' => 'until',
-        #'\\U' => 'unless', '\\w' => 'while',
+
+        'di' => 'die;',
+        'ra' => 'push @s, rand;',
+        'ti' => 'push @s, time;',
+
+        '('  => '(', ')' => ')', '[' => '[', ']' => ']', '{' => '{', '}' => '}'
     }->{$_};
     return $constmap if $constmap;
 
     # ok so it's more complicated than that ;(
     if ($token =~ /^([0-9]+|".*"|\$.*|\@.*)$/) {
         return "push(\@s, $token);";
+    } elsif (substr($token, 0, 1) eq '\\') {
+        $token =~ s/\\//g;
+        my $type = {
+            'e' => 'else', 'E' => 'elsif', 'f' => 'for', 'i' => 'if',
+            'l' => 'last', 'n' => 'next', 'r' => 'return', 'u' => 'until',
+            'U' => 'unless', 'w' => 'while'
+        }->{substr($token, 0, 1)};
+        $token = substr $token, 1;
+
+        if ($token eq '') {
+            return $type;
+        } elsif ($token =~ /^[A-Z]$/) {
+            # TODO get variable
+        } else {
+            # TODO eval as Perl code
+            # or maybe restructure stuff so it can eval as Pterii code?
+            # (we want a new stack but same variables. "Stack stack"?)
+            # this would also remove the special-casing above in the elsif
+        }
     }
 };
 
