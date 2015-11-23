@@ -10,7 +10,8 @@ sub execPterii {
 
     my @tokens;
     while ($code =~ m/
-                     ([-+*\/%><!.^=|&~:?A-LN-RT-XZ,;()\[\]{} ]      # single char
+                     ([-+*\/%><!.^=|&~?A-LN-RT-XZ,;()\[\]{} ]       # single char
+                     | :?[A-LN-RT-XZ_]                              # variables
                      | [fhjkmnqtvwxyz]|[a-z].                       # function
                      | (["']) (?:\\.|(?!\2).)*\2                    # quote
                      | [0-9]+                                       # number
@@ -82,7 +83,7 @@ sub execPterii {
 
         # ok so it's more complicated than that ;(
         if ($token =~ /^([0-9]+|".*"|\$.*|\@.*)$/) {
-            return "push(\@s, $token);";
+            return "push \@s, $token;";
         } elsif (substr($token, 0, 1) eq '\\') {
             $token =~ s/\\//g;
             my $type = {
@@ -101,6 +102,26 @@ sub execPterii {
                 # or maybe restructure stuff so it can eval as Pterii code?
                 # (we want a new stack but same variables. "Stack stack"?)
                 # this would also remove the special-casing above in the elsif
+            }
+        } elsif ($token =~ /^:?[A-Z_]$/) {
+            my $isAssignment = $token =~ /:/;
+            $token =~ s/://;
+            my ($varname, $vartype) = @{{
+                'A' => ['a', '$'], 'B' => ['b', '$'], 'C' => ['c', '$'],
+                'D' => ['d', '$'], 'E' => ['e', '$'], 'F' => ['f', '$'],
+                'G' => ['g', '$'], '_' => ['_', '$'],
+                'H' => ['a', '@'], 'I' => ['b', '@'], 'J' => ['c', '@'],
+                'K' => ['d', '@'], 'L' => ['e', '@'], 'N' => ['f', '@'],
+                'O' => ['g', '@'], 'P' => ['_', '@'],
+                'Q' => ['a', '%'], 'R' => ['b', '%'], 'T' => ['c', '%'],
+                'U' => ['d', '%'], 'V' => ['e', '%'], 'W' => ['f', '%'],
+                'X' => ['g', '%'], 'Z' => ['_', '%'],
+            }->{$token}};
+            if ($isAssignment) {
+                return "&\$ga; $vartype$varname = (\@args > 1) ? (\@args) : " .
+                    "(\$args[0]);";
+            } else {
+                return "push \@s, $vartype$varname;";
             }
         }
     };
