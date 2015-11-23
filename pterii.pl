@@ -37,17 +37,38 @@ my $comptoken = sub {
 
     # let's handle easy constants first
     my $constmap = {
-        '+' => 'ga; push(@s, 0); $s[-1] += $_ foreach @args;',
-        '-' => 'ga; push(@s, shift @args); $s[-1] -= $_ foreach @args;',
-        '*' => 'ga; push(@s, 0); $s[-1] *= $_ foreach @args;',
-        '/' => 'ga; push(@s, shift @args); $s[-1] /= $_ foreach @args;',
-        ' ' => '',
-        'sa' => 'ga; say @args;',
+        '+'  => 'ga; push @s, shift @args; $s[-1] +=  $_ foreach @args;',
+        '-'  => 'ga; push @s, shift @args; $s[-1] -=  $_ foreach @args;',
+        '*'  => 'ga; push @s, shift @args; $s[-1] *=  $_ foreach @args;',
+        '/'  => 'ga; push @s, shift @args; $s[-1] /=  $_ foreach @args;',
+        '%'  => 'ga; push @s, shift @args; $s[-1] %=  $_ foreach @args;',
+        '^'  => 'ga; push @s, shift @args; $s[-1] **= $_ foreach @args;',
+        '.'  => 'ga; push @s, shift @args; $s[-1] .=  $_ foreach @args;',
+        '!'  => 'ga; push @s, 1;           $s[-1] &= !$_ foreach @args;',
+        '&'  => 'ga; push @s, 1;           $s[-1] &=  $_ foreach @args;',
+        '|'  => 'ga; push @s, 0;           $s[-1] |=  $_ foreach @args;',
+        ' '  => '',
+        'ab' => 'ga; push @s, map abs,      @args;',
+        'co' => 'ga; push @s, map cos,      @args;',
+        'ex' => 'ga; push @s, map exp,      @args;',
+        'lc' => 'ga; push @s, map lc,       @args;',
+        'pe' => 'ga; push @s, map eval,     @args;',
+        'pr' => 'ga;          map print,    @args;',
+        'sa' => 'ga;          map say,      @args;',
+        'si' => 'ga; push @s, map sin,      @args;',
+        'sl' => 'ga;          map sleep $_, @args;',
+        'sq' => 'ga; push @s, map sqrt,     @args;',
+        'uc' => 'ga; push @s, map uc,       @args;',
+        'x'  => 'ga; push @s, $args[0] x $args[1];',
+        '('  => '(', ')' => ')', '[' => '[', ']' => ']', '{' => '{', '}' => '}',
+        #'\\e' => 'else', '\\E' => 'elsif', '\\f' => 'for', '\\i' => 'if',
+        #'\\l' => 'last', '\\n' => 'next', '\\r' => 'return', '\\u' => 'until',
+        #'\\U' => 'unless', '\\w' => 'while',
     }->{$_};
     return $constmap if $constmap;
 
     # ok so it's more complicated than that ;(
-    if ($token =~ /^[0-9]+$/) {
+    if ($token =~ /^([0-9]+|".*"|\$.*|\@.*)$/) {
         return "push(\@s, $token);";
     }
 };
