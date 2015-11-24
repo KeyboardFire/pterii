@@ -18,7 +18,7 @@ sub execPterii {
                      | M(.)   (?:\\.|(?!\3).)*\3                    # m regex
                      | [SY](.)(?:\\.|(?!\4).)*\4(?:(?!\4).|\\.)*\4  # s, y regex
                      | [\$@#](?:[A-Za-z]+|.)                        # variable
-                     | \\[eln]|\\.(?:[A-Z]|[^\\]*)                  # backslash seq
+                     | \\[eln]|\\.(?:[A-Z]|[^\\]*\\)                # backslash seq
                      )/gx) {
         push @tokens, $1;
     }
@@ -95,13 +95,9 @@ sub execPterii {
 
             if ($token eq '') {
                 return $type;
-            } elsif ($token =~ /^[A-Z]$/) {
-                # TODO get variable
             } else {
-                # TODO eval as Perl code
-                # or maybe restructure stuff so it can eval as Pterii code?
-                # (we want a new stack but same variables. "Stack stack"?)
-                # this would also remove the special-casing above in the elsif
+                $token =~ s/(['\\])/\\$1/g;
+                return "$type((execPterii '$token')[0])";
             }
         } elsif ($token =~ /^:?[A-Z_]$/) {
             my $isAssignment = $token =~ /:/;
