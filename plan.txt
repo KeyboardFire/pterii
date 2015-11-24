@@ -34,15 +34,16 @@ q toggleStackDiv             *** (simple 2-nested function calls)
 s fsprintf
   xsplice (mnemonic: crossing out parts and replacing)
 *** as many characters as necessary to unambiguously identify (always 1/2):
-    abs atan2 chomp cmp cos die eq eval exp grep gt hex int join keys lc length
-    lt map oct open pop print push rand reverse rindex say scalar shift sin
-    sleep sort split sqrt substr time uc unshift values x
+    abs atan2 chomp cmp cos die eq exp grep gt hex int join keys lc length lt
+    map oct open pop print push rand reverse rindex say scalar shift sin sleep
+    sort split sqrt substr time uc unshift values x
 *** unused: fnwyz
 
 LITERALS/VARIABLES (map to "stick this on the stack")
 ? undef
 ' {}   (for ex. map,grep,sort)
 " ""
+` eval('')
 0 0-9
 M m/.../
 S s/.../.../

@@ -13,7 +13,7 @@ sub execPterii {
                      ([-+*\/%><!.^=|&~?A-LN-RT-XZ,;()\[\]{} ]       # single char
                      | :?[A-LN-RT-XZ_]                              # variables
                      | [fhjkmnqtvwxyz]|[a-z].                       # function
-                     | (["']) (?:\\.|(?!\2).)*\2                    # quote
+                     | (["'`]) (?:\\.|(?!\2).)*\2                   # quote
                      | [0-9]+                                       # number
                      | M(.)   (?:\\.|(?!\3).)*\3                    # m regex
                      | [SY](.)(?:\\.|(?!\4).)*\4(?:(?!\4).|\\.)*\4  # s, y regex
@@ -58,7 +58,6 @@ sub execPterii {
             'co' => '&$ga; push @s, map cos,      @args;',
             'ex' => '&$ga; push @s, map exp,      @args;',
             'lc' => '&$ga; push @s, map lc,       @args;',
-            'pe' => '&$ga; push @s, map eval,     @args;',
             'pr' => '&$ga;          map print,    @args;',
             'sa' => '&$ga;          map say,      @args;',
             'si' => '&$ga; push @s, map sin,      @args;',
@@ -84,6 +83,11 @@ sub execPterii {
         # ok so it's more complicated than that ;(
         if ($token =~ /^([0-9]+|".*"|\$.*|\@.*)$/) {
             return "push \@s, $token;";
+        } elsif ($token =~ /^`.*`$/) {
+            $token = substr $token, 1, length($token) - 2;
+            $token =~ s/\\`/`/g;
+            $token =~ s/(['\\])/\\$1/g;
+            return "push \@s, eval '$token';";
         } elsif (substr($token, 0, 1) eq '\\') {
             $token =~ s/\\//g;
             my $type = {
