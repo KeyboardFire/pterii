@@ -12,7 +12,7 @@ sub execPterii {
     while ($code =~ m/
                      ([-+*\/%><!.^=|&~?A-LN-RT-XZ,;()\[\]{} ]       # single char
                      | :?[A-LN-RT-XZ_]                              # variables
-                     | [fhjkmnqtvwxyz]|[a-z].                       # function
+                     | [fhkmnqtvwxyz]|[a-z].                        # function
                      | (["'`]) (?:\\.|(?!\2).)*\2                   # quote
                      | [0-9]+                                       # number
                      | M(.)   (?:\\.|(?!\3).)*\3                    # m regex
@@ -69,7 +69,15 @@ sub execPterii {
             'so' => '&$ga; push @s, sort    @args;',
 
             'at' => '&$ga; push @s, atan2 $args[0], $args[1];',
+            'dd' => '&$ga; push @s, $args[0]..$args[1];',
             'x'  => '&$ga; push @s, $args[0] x $args[1];',
+
+            'jo' => '&$ga; push @s, join    $args[-1], @args[0..$#args-1];',
+            'jO' => '&$ga; push @s, join    $args[0],  @args[1..$#args];',
+            'sf' => '&$ga; push @s, sprintf $args[-1], @args[0..$#args-1];',
+            'sF' => '&$ga; push @s, sprintf $args[0],  @args[1..$#args];',
+            'sp' => '&$ga; push @s, split   $args[-1], @args[0..$#args-1];',
+            'sP' => '&$ga; push @s, split   $args[0],  @args[1..$#args];',
 
             'di' => 'die;',
             'ra' => 'push @s, rand;',
@@ -118,10 +126,10 @@ sub execPterii {
                 'X' => ['g', '%'], 'Z' => ['_', '%'],
             }->{$token}};
             if ($isAssignment) {
-                return "&\$ga; $vartype$varname = (\@args > 1) ? (\@args) : " .
-                    "(\$args[0]);";
+                return "&\$ga; if(\@args>1){$vartype::$varname=\@args;}" .
+                    "else{$vartype::$varname=\$args[0];}";
             } else {
-                return "push \@s, $vartype$varname;";
+                return "push \@s, $vartype::$varname;";
             }
         }
     };
